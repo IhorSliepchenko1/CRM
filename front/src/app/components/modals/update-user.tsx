@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
 import { hasErrorField } from "../../../utils/has-error-field";
 import { useLazyGetAllUsersQuery, useUpdateUserMutation } from "../../services/userApi";
 import { RadioGroup, Radio } from "@nextui-org/react";
+import { useCheckValidToken } from "../../hooks/useCheckValidToken";
+import { useAppDispatch } from "../../hooks";
+import { logout } from "../../../features/user/userSlice";
 
 type Props = {
      isOpen: boolean
@@ -30,12 +33,6 @@ export const UpdateUser = ({
      login,
      id
 }: Props) => {
-     const { theme } = useTheme()
-
-     const [updateUser] = useUpdateUserMutation()
-     const [triggerGetUserById] = useLazyGetAllUsersQuery()
-
-     const [error, setError] = useState("")
      const {
           handleSubmit,
           control,
@@ -49,6 +46,13 @@ export const UpdateUser = ({
                role,
           },
      })
+
+     const { theme } = useTheme()
+     const [updateUser] = useUpdateUserMutation()
+     const [triggerGetUserById] = useLazyGetAllUsersQuery()
+     const [error, setError] = useState("")
+     const dispatch = useAppDispatch()
+     const { decoded } = useCheckValidToken()
 
      const resetInput = () => {
           onOpenChange()
@@ -67,6 +71,11 @@ export const UpdateUser = ({
           try {
                await updateUser({ data, id }).unwrap()
                await triggerGetUserById().unwrap()
+
+               if (decoded.login === data.login && data.password !== undefined) {
+                    dispatch(logout())
+               }
+
                resetInput()
 
           } catch (err) {

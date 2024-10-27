@@ -7,6 +7,8 @@ import { useDeleteUserMutation, useGetAllUsersQuery, useLazyGetAllUsersQuery } f
 import { ModalDelete } from "../modals/delete";
 import { UpdateUser } from "../modals/update-user";
 import { useCheckValidToken } from "../../hooks/useCheckValidToken";
+import { useAppDispatch } from "../../hooks";
+import { logout } from "../../../features/user/userSlice";
 
 export const Users = () => {
   const { data, isLoading } = useGetAllUsersQuery()
@@ -21,6 +23,7 @@ export const Users = () => {
     login: "",
     id: 0,
   })
+  const dispatch = useAppDispatch()
 
 
   const renderData = useMemo(() => {
@@ -38,6 +41,10 @@ export const Users = () => {
   const deleteHandler = async (id: number) => {
     await deleteUser(id).unwrap()
     await triggerGetAllUsers().unwrap()
+
+    if (decoded.id === id) {
+      dispatch(logout())
+    }
   }
 
   const showModal = () => {

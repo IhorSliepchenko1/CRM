@@ -51,7 +51,6 @@ export const CashRegisterDeposit = ({ isOpen, onOpenChange, page, limit }: Props
                resetInput()
 
           } catch (err) {
-
                if (hasErrorField(err)) {
                     setError(err.data.message)
                }
